@@ -5,10 +5,8 @@ RMM = function(A, B, r, seed.num=243) {
   n = dim(A)[2]
 
   prob = rep(0, n)
-  for (i in 1:n) {
-    prob[i] = norm(A[,i],"2") * norm(B[i,],"2")
-  }
-  prob[i] = prob[i] / sum(prob)
+  prob <- sapply(1:n, FUN = function(x) norm(A[,x],"2") * norm(B[x,],"2"))
+  prob = prob / sum(prob)
 
   S = 0
   for (i in 1:r) {
