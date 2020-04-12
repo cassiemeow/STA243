@@ -1,10 +1,8 @@
 ########## Question 4 ##########
 RMM = function(A, B, r, seed.num=243) {
-  
   set.seed(seed.num)
   n = dim(A)[2]
 
-  prob = rep(0, n)
   prob <- sapply(1:n, FUN = function(x) norm(A[,x],"2") * norm(B[x,],"2"))
   prob = prob / sum(prob)
 
@@ -16,7 +14,6 @@ RMM = function(A, B, r, seed.num=243) {
   S = S/r
   
   return(S)
-  
 }
 
 A = as.matrix(read.csv(file="STA243_homework_1_matrix_A.csv", header=F))
@@ -35,6 +32,8 @@ for (i in 1:length(r_vec)) {
   result_error = c(result_error,error)
 }
 
+print(data.frame(r=r_vec,error=result_error))
+
 par(mfrow=c(2,2))
 for (i in 1:length(r_vec)) {
   r = r_vec[i]
@@ -44,3 +43,49 @@ for (i in 1:length(r_vec)) {
 par(mfrow=c(1,1))
 
 image(C)
+
+
+
+########## Question 5 ##########
+power_iteration = function(A, v0, eps = 1e-6, maxiter=100, num.trunc=NA) {
+  # Please implement the function power_iteration that takes in the matrix X and initial vector v0 and returns the eigenvector.
+  c_old = v0
+  step = 0
+  while (step < maxiter) {
+    c = A %*% c_old
+    c = as.vector(c / sqrt(sum(c^2)))
+    if (!is.na(num.trunc)) {
+      c[rank(-c) > num.trunc] = 0
+      c = as.vector(c / sqrt(sum(c^2)))
+    }
+    crit = sqrt(sum(c-c_old)^2)
+    if (crit < eps) {
+      break
+    } else {
+      c_old = c
+      step = step + 1
+    }
+  }
+  if (step == maxiter) {
+    print("The optimal value does not converge")
+    print(paste0("Max iteration = ",maxiter))
+    print(paste0("Crit = ",crit))
+  }
+  return(c)
+}
+
+set.seed(5)
+E = matrix(rnorm(100), 10, 10)
+v = c(1, rep(0, 9))
+lams = 1:10
+prods = c()
+for (lambda in lams) {
+  X = lambda*outer(v, v) + E
+  v0 = rep(1, nrow(E))
+  v0 = v0/sqrt(sum(v0^2))
+  vv = power_iteration(X, v0)
+  # vv = power_iteration(X, v0, num.trunc=3)
+  # vv = power_iteration(X, v0, maxiter=10000) #
+  prods = c(prods, abs(v %*% vv))
+}
+plot(lams, prods, "b")
