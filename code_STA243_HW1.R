@@ -89,3 +89,42 @@ for (lambda in lams) {
   prods = c(prods, abs(v %*% vv))
 }
 plot(lams, prods, "b")
+
+
+
+########## Question 6 ##########
+sketched_OLS = function(X, y, e=.1, seed.num=243*6) {
+  n = dim(X)[1]
+  d = dim(X)[2]
+  r = round(d * log(n) / e)
+  S = NULL
+  
+  set.seed(seed.num)
+  index = sample(1:n,r,replace=T)
+  for (i in index) {
+    S = cbind(S,as.matrix(sqrt(n/r)*replace(rep(0,n),i,1)))
+  }
+  
+  temp = lapply(index, function(i) as.matrix(sqrt(n/r)*replace(rep(0,n),i,1)))
+  
+  for (i in 1:log(n,base=2)) {
+    print(i)
+    if (i==1) {
+      H = matrix(c(1,1,1,-1),2,2)
+    } else {
+      H = rbind(cbind(H_old,H_old),cbind(H_old,-H_old))
+    }
+    H_old = H
+  }
+  H = 1/sqrt(n) * H
+  
+  D = diag(sample(c(1,-1),n,replace=T))
+  
+  X2 = t(S) %*% H %*% D %*% X
+  y2 = t(S) %*% H %*% D %*% y
+  
+  b = solve(crossprod(X2), t(X2) %*%  y2)
+  b = as.vector(b)
+  
+  return(b)
+}
