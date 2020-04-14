@@ -128,3 +128,9 @@ sketched_OLS = function(X, y, e=.1, seed.num=243*6) {
   
   return(b)
 }
+                
+set.seed(1)      
+x <- matrix(runif(1048576), 1048576, 20)
+y <- runif(1048576)
+                
+sapply(c(0.1,0.05,0.01,0.001), FUN = function(i)sketched_OLS(x, y,i))
