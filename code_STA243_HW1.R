@@ -97,13 +97,6 @@ sketched_OLS = function(X, y, e=.1, seed.num=243*6) {
   n = dim(X)[1]
   d = dim(X)[2]
   r = round(d * log(n) / e)
-  S = NULL
-  
-  set.seed(seed.num)
-  index = sample(1:n,r,replace=T)
-  for (i in index) {
-    S = cbind(S,as.matrix(sqrt(n/r)*replace(rep(0,n),i,1)))
-  }
   
   diag.replace = diag(x) * sample(c(1, -1), size = n,replace = T,prob = c(0.5, 0.5))
   DX = x
@@ -117,7 +110,14 @@ sketched_OLS = function(X, y, e=.1, seed.num=243*6) {
   X2 =  t(S) %*% H_x
   y2 = t(S) %*% H_y
   
-  b = solve(crossprod(X2), t(X2) %*%  y2)
+  set.seed(seed.num)
+  index = sample(1:n,r,replace=T)
+  for (i in index) {
+    out.x = X2[,i] * sqrt(n/r)*replace(rep(0,n),i,1)
+    out.y = y2[i] * sqrt(n/r)*replace(rep(0,n),i,1) 
+  }
+  
+  b = solve(crossprod(out.x), t(out.x) %*%  out.y)
   b = as.vector(b)
   
   return(b)
