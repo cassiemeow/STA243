@@ -93,13 +93,14 @@ plot(lams, prods, "b")
 
 
 ########## Question 6 ##########
+library(phangorn)
 sketched_OLS = function(X, y, e=.1, seed.num=243*6) {
   n = dim(X)[1]
   d = dim(X)[2]
   r = round(d * log(n) / e)
   
-  diag.replace = diag(x) * sample(c(1, -1), size = n,replace = T,prob = c(0.5, 0.5))
-  DX = x
+  diag.replace = diag(X) * sample(c(1, -1), size = length(diag(X)),replace = T,prob = c(0.5, 0.5))
+  DX = X
   diag(DX) = diag.replace
   
   Dy = y * sample(c(1, -1), size = n,replace = T,prob = c(0.5, 0.5))
