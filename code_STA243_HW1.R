@@ -105,14 +105,14 @@ sketched_OLS = function(X, y, e=.1, seed.num=243*6) {
   
   Dy = y * sample(c(1, -1), size = n,replace = T,prob = c(0.5, 0.5))
   
-  H_x = fhm(DX)
-  H_y = fhm(Dy)
+  H_x = matrix(fhm(DX),nrow(DX),ncol(DX))
+  H_y = matrix(fhm(Dy),length(Dy),1)
   
   set.seed(seed.num)
   index = sample(1:n,r,replace=T)
   for (i in index) {
-    X2 = H_x[,i] * sqrt(n/r)*replace(rep(0,n),i,1)
-    y2 = H_y[i] * sqrt(n/r)*replace(rep(0,n),i,1) 
+    X2 = H_x[i,] * sqrt(n/r)*replace(rep(0,n),i,1)
+    y2 = H_y[i,] * sqrt(n/r)*replace(rep(0,n),i,1) 
   }
   
   b = solve(crossprod(X2), t(X2) %*%  y2)
