@@ -109,8 +109,13 @@ sketched_OLS = function(X, y, e=.1, seed.num=243*6) {
   DX = x
   diag(DX) = diag.replace
   
-  X2 = t(S) %*% H %*% DX
-  y2 = t(S) %*% H %*% Dy
+  Dy = y * sample(c(1, -1), size = n,replace = T,prob = c(0.5, 0.5))
+  
+  H_x = fhm(DX)
+  H_y = fhm(Dy)
+  
+  X2 =  t(S) %*% H_x
+  y2 = t(S) %*% H_y
   
   b = solve(crossprod(X2), t(X2) %*%  y2)
   b = as.vector(b)
