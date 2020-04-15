@@ -105,23 +105,12 @@ sketched_OLS = function(X, y, e=.1, seed.num=243*6) {
     S = cbind(S,as.matrix(sqrt(n/r)*replace(rep(0,n),i,1)))
   }
   
-  temp = lapply(index, function(i) as.matrix(sqrt(n/r)*replace(rep(0,n),i,1)))
+  diag.replace = diag(x) * sample(c(1, -1), size = n,replace = T,prob = c(0.5, 0.5))
+  DX = x
+  diag(DX) = diag.replace
   
-  for (i in 1:log(n,base=2)) {
-    print(i)
-    if (i==1) {
-      H = matrix(c(1,1,1,-1),2,2)
-    } else {
-      H = rbind(cbind(H_old,H_old),cbind(H_old,-H_old))
-    }
-    H_old = H
-  }
-  H = 1/sqrt(n) * H
-  
-  D = diag(sample(c(1,-1),n,replace=T))
-  
-  X2 = t(S) %*% H %*% D %*% X
-  y2 = t(S) %*% H %*% D %*% y
+  X2 = t(S) %*% H %*% DX
+  y2 = t(S) %*% H %*% Dy
   
   b = solve(crossprod(X2), t(X2) %*%  y2)
   b = as.vector(b)
