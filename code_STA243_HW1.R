@@ -99,33 +99,28 @@ sketched_OLS = function(X, y, e=.1, seed.num=243*6) {
   d = dim(X)[2]
   r = round(d * log(n) / e)
   
-  diag.replace = diag(X) * sample(c(1, -1), size = length(diag(X)),replace = T,prob = c(0.5, 0.5))
-  DX = X
-  diag(DX) = diag.replace
+  D = sample(c(1,-1), n, replace=T,prob = c(0.5, 0.5))
+  DX = apply(X, 2, function(x) D*x)
+  Dy = D * y
   
-  Dy = y * sample(c(1, -1), size = n,replace = T,prob = c(0.5, 0.5))
-  
-  H_x = matrix(fhm(DX),nrow(DX),ncol(DX))
-  H_y = matrix(fhm(Dy),length(Dy),1)
+  HDX = apply(DX,2,fhm)
+  HDy = fhm(Dy)
   
   set.seed(seed.num)
   index = sample(1:n,r,replace=T)
   for (i in index) {
-    X2 = H_x[i,] * sqrt(n/r)*replace(rep(0,n),i,1)
-    y2 = H_y[i,] * sqrt(n/r)*replace(rep(0,n),i,1) 
+    X2 = HDX[i,] * sqrt(n/r)*replace(rep(0,n),i,1)
+    y2 = HDy[i,] * sqrt(n/r)*replace(rep(0,n),i,1) 
   }
   
-  b = solve(crossprod(X2), t(X2) %*%  y2)
-  b = as.vector(b)
-  
-  return(b)
+  return(list(X=X2, y=y2))
 }
                 
 set.seed(1)      
 x <- matrix(runif(1048576), 1048576, 20)
 y <- runif(1048576)
                 
-sapply(c(0.1,0.05,0.01,0.001), FUN = function(i)sketched_OLS(x, y,i))
+sapply(c(0.1,0.05,0.01,0.001), FUN = function(i) sketched_OLS(x, y, i))
 
 
 ##### Eunseong's new code #####
@@ -134,7 +129,6 @@ SHD_gen = function(X, y, e=.1, seed.num=243) {
   set.seed(seed.num)
   n = dim(X)[1]
   d = dim(X)[2]
-  m = as.integer(log(n,base=2))
   r = round(d * log(n) / e)
   
   D = sample(c(1,-1), n, replace=T)
@@ -145,11 +139,13 @@ SHD_gen = function(X, y, e=.1, seed.num=243) {
   HDy = fhm(Dy)
 
   S = sample(1:n, r, replace=T)
+             
   S.fun = function(z) {
     z = as.vector(z)
     result = sqrt(n/r) * sapply(S, function(i) z[i])
     return(result)
   }
+                                
   SHDX = apply(HDX,2,S.fun)
   SHDy = S.fun(HDy)
 
