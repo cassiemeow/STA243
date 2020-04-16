@@ -140,14 +140,10 @@ SHD_gen = function(X, y, e=.1, seed.num=243) {
   D = sample(c(1,-1), n, replace=T)
   DX = apply(X,2,function(z) D*z)
   Dy = D * y
-  dim(DX)
-  length(Dy)
-  
+
   HDX = apply(DX,2,fhm)
   HDy = fhm(Dy)
-  dim(HDX)
-  length(HDy)
-  
+
   S = sample(1:n, r, replace=T)
   S.fun = function(z) {
     z = as.vector(z)
@@ -156,16 +152,13 @@ SHD_gen = function(X, y, e=.1, seed.num=243) {
   }
   SHDX = apply(HDX,2,S.fun)
   SHDy = S.fun(HDy)
-  dim(SHDX)
-  length(SHDy)
-  
+
   return(list(X=SHDX, y=SHDy))
 }
 
 set.seed(1)
 X = matrix(runif(1048576*20,0,1),1048576,20)
 y = runif(1048576,0,1)
-e=0.001
 
 e_vec = c(.1, .05, .01, .001)
 result = matrix(NA, length(e_vec), 3)
