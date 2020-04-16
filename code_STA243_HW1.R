@@ -122,7 +122,7 @@ time.full = system.time({b.full = solve(crossprod(x,x),crossprod(x,y))})[3]
 e.list = c(0.1,0.05,0.01,0.001)
 out = as.data.frame(matrix(NA, length(e.list), 2))
 
-for (i in length(e.list)) {
+for (i in 1:length(e.list)) {
   e = e.list[i]
   phi = phi_generate(x,y,e)
   out[i,1] = system.time({b.fast = solve(crossprod(phi$X,phi$X),crossprod(phi$X,phi$y))})[3]
