@@ -94,7 +94,7 @@ plot(lams, prods, "b")
 
 ########## Question 6 ##########
 library(phangorn)
-sketched_OLS = function(X, y, e=.1, seed.num=243*6) {
+phi_generate = function(X, y, e=.1, seed.num=243*6) {
   n = dim(X)[1]
   d = dim(X)[2]
   r = round(d * log(n) / e)
@@ -106,21 +106,26 @@ sketched_OLS = function(X, y, e=.1, seed.num=243*6) {
   HDX = apply(DX,2,fhm)
   HDy = fhm(Dy)
   
-  set.seed(seed.num)
   index = sample(1:n,r,replace=T)
-  for (i in index) {
-    X2 = HDX[i,] * sqrt(n/r)*replace(rep(0,n),i,1)
-    y2 = HDy[i,] * sqrt(n/r)*replace(rep(0,n),i,1) 
-  }
-  
-  return(list(X=X2, y=y2))
+  X2 = apply(HDX, 2, function(x) sqrt(n/r)*sapply(index, function(p) as.vector(x)[p]))
+  y2 = sqrt(n/r)*sapply(index, function(p) HDy[p])
+
+  return(list(X=X2,y=y2))
 }
                 
 set.seed(1)      
 x <- matrix(runif(1048576), 1048576, 20)
 y <- runif(1048576)
-                
-sapply(c(0.1,0.05,0.01,0.001), FUN = function(i) sketched_OLS(x, y, i))
+                        
+time.full = system.time({b.full = solve(crossprod(x,x),crossprod(x,y))})[3]
+
+e.list <- c(0.1,0.05,0.01,0.001)
+for (i in length(e.list)) {
+  e <- e.list[i]
+  phi <- phi_generate(x,y,e)
+  time.fast <- system.time({b.fast = solve(crossprod(phi$X,phi$X),crossprod(phi$X,phi$y))})
+  time.fast[3]
+}
 
 
 ##### Eunseong's new code #####
