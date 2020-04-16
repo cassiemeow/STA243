@@ -126,3 +126,66 @@ x <- matrix(runif(1048576), 1048576, 20)
 y <- runif(1048576)
                 
 sapply(c(0.1,0.05,0.01,0.001), FUN = function(i)sketched_OLS(x, y,i))
+
+
+##### Eunseong's new code #####
+library(phangorn)
+SHD_gen = function(X, y, e=.1, seed.num=243) {
+  set.seed(seed.num)
+  n = dim(X)[1]
+  d = dim(X)[2]
+  m = as.integer(log(n,base=2))
+  r = round(d * log(n) / e)
+  
+  D = sample(c(1,-1), n, replace=T)
+  DX = apply(X,2,function(z) D*z)
+  Dy = D * y
+  dim(DX)
+  length(Dy)
+  
+  HDX = apply(DX,2,fhm)
+  HDy = fhm(Dy)
+  dim(HDX)
+  length(HDy)
+  
+  S = sample(1:n, r, replace=T)
+  S.fun = function(z) {
+    z = as.vector(z)
+    result = sqrt(n/r) * sapply(S, function(i) z[i])
+    return(result)
+  }
+  SHDX = apply(HDX,2,S.fun)
+  SHDy = S.fun(HDy)
+  dim(SHDX)
+  length(SHDy)
+  
+  return(list(X=SHDX, y=SHDy))
+}
+
+set.seed(1)
+X = matrix(runif(1048576*20,0,1),1048576,20)
+y = runif(1048576,0,1)
+e=0.001
+
+e_vec = c(.1, .05, .01, .001)
+result = matrix(NA, length(e_vec), 3)
+rownames(result) = e_vec
+colnames(result) = c("Time", "Diff", "Relative Diff")
+
+full.time = system.time({
+  b1 = solve(crossprod(X,X),crossprod(X,y))  
+})[3]
+
+for (i in 1:length(e_vec)) {
+  e = e_vec[i]
+  SHD = SHD_gen(X,y,e)
+  SHDX = SHD$X
+  SHDy = SHD$y
+  result[i,1] = system.time({
+    b2 = solve(crossprod(SHDX,SHDX),crossprod(SHDX,SHDy))
+  })[3]
+  result[i,2] = norm(b1-b2,"2")
+  result[i,3] = norm(b1-b2,"2")/norm(b1,"2")
+}
+print(full.time)
+print(result)
