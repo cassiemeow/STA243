@@ -114,7 +114,7 @@ phi_generate = function(X, y, e=.1, seed.num=243*6) {
 }
                 
 set.seed(1)      
-x <- matrix(runif(1048576), 1048576, 20)
+x <- matrix(runif(1048576*20), 1048576, 20)
 y <- runif(1048576)
                         
 time.full = system.time({b.full = solve(crossprod(x,x),crossprod(x,y))})[3]
