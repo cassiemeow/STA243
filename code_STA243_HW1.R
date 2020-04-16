@@ -101,7 +101,7 @@ phi_generate = function(X, y, e=.1, seed.num=243*6) {
   
   D = sample(c(1,-1), n, replace=T,prob = c(0.5, 0.5))
   DX = apply(X, 2, function(x) D*x)
-  Dy = D * y
+  Dy = D*y
   
   HDX = apply(DX,2,fhm)
   HDy = fhm(Dy)
@@ -114,18 +114,25 @@ phi_generate = function(X, y, e=.1, seed.num=243*6) {
 }
                 
 set.seed(1)      
-x <- matrix(runif(1048576*20), 1048576, 20)
-y <- runif(1048576)
+x = matrix(runif(1048576*20), 1048576, 20)
+y = runif(1048576)
                         
 time.full = system.time({b.full = solve(crossprod(x,x),crossprod(x,y))})[3]
 
-e.list <- c(0.1,0.05,0.01,0.001)
+e.list = c(0.1,0.05,0.01,0.001)
+out = as.data.frame(matrix(NA, length(e.list), 2))
+
 for (i in length(e.list)) {
-  e <- e.list[i]
-  phi <- phi_generate(x,y,e)
-  time.fast <- system.time({b.fast = solve(crossprod(phi$X,phi$X),crossprod(phi$X,phi$y))})
-  time.fast[3]
+  e = e.list[i]
+  phi = phi_generate(x,y,e)
+  out[i,1] = system.time({b.fast = solve(crossprod(phi$X,phi$X),crossprod(phi$X,phi$y))})[3]
 }
+out[,2] = c("","","",time.full)
+colnames(out) = c("Sketched OLS","Original")
+
+library(kableExtra)
+knitr::kable(out, align = "c", caption = "Calculation Time") %>%
+  kable_styling(bootstrap_options = "striped", full_width = F)
 
 
 ##### Eunseong's new code #####
