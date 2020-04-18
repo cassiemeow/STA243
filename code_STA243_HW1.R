@@ -48,7 +48,8 @@ image(C)
 
 ########## Question 5 ##########
 power_iteration = function(A, v0, eps = 1e-6, maxiter=100, num.trunc=NA) {
-  # Please implement the function power_iteration that takes in the matrix X and initial vector v0 and returns the eigenvector.
+  # Please implement the function power_iteration that takes in the matrix
+  # X and initial vector v0 and returns the eigenvector.
   c_old = v0
   step = 0
   while (step < maxiter) {
