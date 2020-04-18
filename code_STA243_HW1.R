@@ -122,21 +122,27 @@ y = runif(1048576)
 time.full = system.time({b.full = solve(crossprod(x,x),crossprod(x,y))})[3]
 
 e.list = c(0.1,0.05,0.01,0.001)
-out = as.data.frame(matrix(NA, length(e.list), 4))
+out = as.data.frame(matrix(NA, length(e.list), 5))
+out[,1] = e.list
 
 for (i in 1:length(e.list)) {
   e = e.list[i]
   phi = phi_generate(x,y,e)
-  out[i,1] = system.time({b.fast = solve(crossprod(phi$X,phi$X),crossprod(phi$X,phi$y))})[3]
+  out[i,4] = system.time({b.fast = solve(crossprod(phi$X,phi$X),crossprod(phi$X,phi$y))})[3]
+  out[i,2] = norm(b.full-b.fast,"2")
+  out[i,3] = norm(b.full-b.fast,"2")/norm(b.full,"2")
 }
-out[,2] = c("","","",time.full)
-out[,3] = sapply(out[,1], function(x) norm(time.full-x,"2"))
-out[,4] = sapply(out[,1], function(x) norm(time.full-x,"2")/norm(time.full,"2"))
-colnames(out) = c("Sketched OLS Time","Full Time", "Difference", "Relative Difference")
+out[,5] = c("","","",time.full)
+
+colnames(out) = c("Epsilon","Difference", "Relative Difference","Sketched OLS Time","Full Time")
 
 library(kableExtra)
 knitr::kable(out, align = "c", caption = "Calculation Time") %>%
-  kable_styling(bootstrap_options = "striped", full_width = F)
+  kable_styling(bootstrap_options = "striped", full_width = F) %>%
+  footnote(number = c("Difference is calculated by taking L2 norm of the coefficients obtained 
+by Sketched OLS method subtracting from that of the naive way;", 
+           "Relative Difference is calculated by taking the result of Difference and divided 
+by the L2 norm of coefficients obtained by the naive way."))
 
 
 ##### Eunseong's new code #####
